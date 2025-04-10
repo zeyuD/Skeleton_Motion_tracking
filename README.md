@@ -13,6 +13,10 @@ This tool aims to bridge the gap between the lack of comprehensive ready-to-use 
 - Socket to send to other platforms
 - Save on local machine
 
+## Arranged To Do List
+- Limit tracking hand (e.g., only track right hand)
+- Display real-time Leap Motion status like FPS
+
 ## Implemented but Not Organized and Added
 - Hand and body skeleton tracking with Kinect 1&2 (C)
 - Hand tracking integration with MediaPipe (Python)
