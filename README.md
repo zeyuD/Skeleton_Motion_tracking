@@ -51,4 +51,4 @@ lsusb
 sudo leapd
 ```
 
-Note: The hand tracking UI is unstable in WSL, it is recommended to use cmd only.
+Note: The hand tracking UI is unstable in WSL, it is recommended to use command only.
