@@ -53,7 +53,13 @@ lsusb
 
 # Start the Leap Motion service
 sudo leapd
+```
 
+
+
+### Attaching Leap Motion Controller via USB through WSL
+
+```bash
 # Location of sample files on Linux system
 sudo cp LeapMotion/samples/save_data.c /usr/share/doc/ultraleap-hand-tracking-service/samples/save_data.c
 ```
