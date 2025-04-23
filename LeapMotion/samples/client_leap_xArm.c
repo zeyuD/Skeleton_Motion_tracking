@@ -3,18 +3,24 @@
 #include <string.h>
 #include <stdint.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 #include "LeapC.h"
 #include "ExampleConnection.h"
 #include <math.h>
 
-#define SERVER_IP "10.9.149.27"
-// #define SERVER_IP "127.0.0.1"
+// #define SERVER_IP "10.9.167.67" // Legion WiFi IP
+#define SERVER_IP "10.9.149.27" // XPS WiFi IP
 // #define SERVER_IP "10.9.157.137" // MacBook Pro WiFi IP
 #define SERVER_PORT 8000
 #define STACK_SIZE 1 // number of frames to stack before sending
 
+// double get_unix_timestamp(void) {
+//     struct timeval tv;
+//     gettimeofday(&tv, NULL);
+//     return tv.tv_sec + (tv.tv_usec / 1000000.0);
+// }
 
 // Function to convert quaternion to roll, pitch, and yaw
 void quaternionToEuler(const LEAP_QUATERNION *q, float *roll, float *pitch, float *yaw) {
@@ -60,6 +66,14 @@ struct Data {
     double timestamp;
 };
 
+void write_data_to_csv(struct Data* data, size_t count, FILE* file) {
+    for (size_t i = 0; i < count; ++i) {
+        fprintf(file, "%f,%f,%f,%f,%f,%f,%f,%f\n",
+                data[i].timestamp, data[i].x, data[i].y, data[i].z,
+                data[i].grab, data[i].roll, data[i].pitch, data[i].yaw);
+    }
+}
+
 void serialize_data(struct Data* data, size_t count, char* buffer, size_t buffer_size) {
     snprintf(buffer, buffer_size, "[");
     for (size_t i = 0; i < count; ++i) {
@@ -67,9 +81,10 @@ void serialize_data(struct Data* data, size_t count, char* buffer, size_t buffer
         snprintf(data_str, sizeof(data_str),
                  "%f,%f,%f,%f,%f,%f,%f,%f",
                  data[i].x, data[i].y, data[i].z, data[i].roll, data[i].grab, data[i].timestamp, data[i].pitch, data[i].yaw);
+                //  data[i].x, data[i].y, data[i].z, data[i].roll, 0, data[i].timestamp, data[i].pitch, data[i].yaw);
                 //  data[i].x, data[i].y, data[i].z, 0, data[i].grab, data[i].timestamp, 0, 0);
 
-        printf("Derive hand command: %s\n", data_str);
+        // printf("Derive hand command: %s\n", data_str);
 
         strncat(buffer, data_str, buffer_size - strlen(buffer) - 1);
         if (i < count - 1) {
@@ -90,9 +105,16 @@ int main(int argc, char** argv) {
     if (deviceProps)
         printf("Using device %s.\n", deviceProps->serial);
 
+    FILE* file = fopen("/Users/zeyu/leapmotion/build/Release/leapc_exec/_leap_.csv", "w");
+    if (!file) {
+        perror("fopen");
+        return 1;
+    }
+
+    fprintf(file, "timestamp,x,y,z,grab,roll,pitch,yaw\n");
 
     int64_t lastFrameID = 0; // The last frame received
-    float yaw, pitch, roll;
+    float roll, pitch, yaw;
     struct Data data;
     struct sockaddr_in server_addr;
     struct Data data_stack[STACK_SIZE];
@@ -129,10 +151,12 @@ int main(int argc, char** argv) {
                 data.pitch = pitch;
                 data.yaw = yaw;
                 data.timestamp = (double)frame->info.timestamp / 1000000.0;
+                // data.timestamp = get_unix_timestamp();
 
                 data_stack[data_index++] = data;
 
                 if (data_index >= STACK_SIZE) {
+                    write_data_to_csv(data_stack, data_index, file);
                     char buffer[2048] = {0};
                     serialize_data(data_stack, data_index, buffer, sizeof(buffer));
 

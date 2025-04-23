@@ -10,7 +10,8 @@
 #include "LeapC.h"
 #include "ExampleConnection.h"
 
-#define STACK_SIZE 4 // number of frames to stack before sending
+#define STACK_SIZE 1 // number of frames to stack before sending
+
 
 int64_t lastFrameID = 0; // The last frame received
 
@@ -88,9 +89,11 @@ int main(int argc, char** argv) {
 
     struct Data data_stack[STACK_SIZE];
     size_t data_index = 0;
+    struct Data data;
+    float roll, pitch, yaw;
 
-    LEAP_TRACKING_EVENT* frame = GetFrame();
-    double start_time = (double)frame->info.timestamp / 1000000.0;
+    // LEAP_TRACKING_EVENT* frame = GetFrame();
+    // double start_time = (double)frame->info.timestamp / 1000000.0;
     double elapsed_time = 0;
     for (;;) {
         LEAP_TRACKING_EVENT* frame = GetFrame();
@@ -99,7 +102,6 @@ int main(int argc, char** argv) {
             for (uint32_t h = 0; h < frame->nHands; h++) {
                 LEAP_HAND* hand = &frame->pHands[h];
 
-                struct Data data;
                 data.x = hand->palm.position.x;
                 data.y = hand->palm.position.y;
                 data.z = hand->palm.position.z;
@@ -109,8 +111,8 @@ int main(int argc, char** argv) {
                 data.qw = hand->palm.orientation.w;
                 data.grab = hand->grab_strength;
                 data.timestamp = (double)frame->info.timestamp / 1000000.0;
+                // data.timestamp = get_unix_timestamp();
 
-                float roll, pitch, yaw;
                 // For robot control RPY
                 quaternionToEuler_robot(&hand->palm.orientation, &roll, &pitch, &yaw);
                 data.roll = roll;
