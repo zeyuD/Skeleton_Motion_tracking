@@ -41,7 +41,7 @@ usbipd list
 # Find the USB device ID
 lsusb
 
-# The Leap Motion will appear as "Leap Motion Controller" or with vendor ID 0x2936
+# The Leap Motion will appear as "Ultraleap Tracking Camera" or with ID 2936:1206 
 
 # Attach the Leap Motion to WSL (PowerShell as Administrator)
 # Replace BUSID with the Bus ID number from the usbipd list output
