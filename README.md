@@ -50,9 +50,6 @@ usbipd attach --busid BUSID --wsl
 
 # Verify the device is connected in WSL
 lsusb
-
-# Start the Leap Motion service
-sudo leapd
 ```
 
 
@@ -60,6 +57,9 @@ sudo leapd
 ### Some Handy Code for Building and Running in Linux
 
 ```bash
+# Start the Leap Motion service
+sudo leapd
+
 # Location of sample files on Linux system
 sudo cp LeapMotion/samples/save_data.c /usr/share/doc/ultraleap-hand-tracking-service/samples/save_data.c
 ```
