@@ -57,7 +57,7 @@ sudo leapd
 
 
 
-### Attaching Leap Motion Controller via USB through WSL
+### Some Handy Code for Building and Running in Linux
 
 ```bash
 # Location of sample files on Linux system
