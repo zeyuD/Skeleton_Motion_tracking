@@ -55,7 +55,6 @@ lsusb
 sudo leapd
 
 # Location of sample files on Linux system
-cd usr/share/doc/ultraleap-hand-tracking-service/samples
 sudo cp LeapMotion/samples/save_data.c /usr/share/doc/ultraleap-hand-tracking-service/samples/save_data.c
 ```
 
