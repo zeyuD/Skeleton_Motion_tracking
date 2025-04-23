@@ -53,6 +53,9 @@ lsusb
 
 # Start the Leap Motion service
 sudo leapd
+
+# Location of sample files on Linux system
+cd usr/share/doc/ultraleap-hand-tracking-service/samples
 ```
 
 Note: The hand tracking UI is unstable in WSL, it is recommended to use command only.
