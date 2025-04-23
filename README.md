@@ -56,8 +56,7 @@ sudo leapd
 
 # Location of sample files on Linux system
 cd usr/share/doc/ultraleap-hand-tracking-service/samples
-sudo cp LeapMotion/samples/save_data.c /usr/share/doc/ultraleap-hand-t
-racking-service/samples/save_data.c
+sudo cp LeapMotion/samples/save_data.c /usr/share/doc/ultraleap-hand-tracking-service/samples/save_data.c
 ```
 
 Note: The hand tracking UI is unstable in WSL, it is recommended to use command only.
