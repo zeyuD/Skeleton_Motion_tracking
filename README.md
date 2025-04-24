@@ -63,6 +63,9 @@ sudo cp LeapMotion/samples/save_data.c /usr/share/doc/ultraleap-hand-tracking-se
 # Build the samples
 sudo bash /usr/share/doc/ultraleap-hand-tracking-service/build_project.sh
 
+# Location of built executables
+cd /home/zeyu/leapmotion/build/Release/leapc_example
+
 # Start the Leap Motion service
 sudo leapd
 ```
