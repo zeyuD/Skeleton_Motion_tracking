@@ -3,68 +3,35 @@
 #include <string.h>
 #include <stdint.h>
 #include <sys/socket.h>
-#include <sys/time.h>
+#include <time.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include "LeapC.h"
-#include "ExampleConnection.h"
 #include <math.h>
 
+#include "LeapC.h"
+#include "ExampleConnection.h"
+
+#define TARGET_FPS    100
+#define PERIOD_US     (1000000 / TARGET_FPS)
+#define STACK_SIZE     1
 // #define SERVER_IP "10.9.167.67" // Legion WiFi IP
 #define SERVER_IP "10.9.149.27" // XPS WiFi IP
 // #define SERVER_IP "10.9.157.137" // MacBook Pro WiFi IP
 #define SERVER_PORT 8000
-#define STACK_SIZE 1 // number of frames to stack before sending
-
-// double get_unix_timestamp(void) {
-//     struct timeval tv;
-//     gettimeofday(&tv, NULL);
-//     return tv.tv_sec + (tv.tv_usec / 1000000.0);
-// }
-
-// Function to convert quaternion to roll, pitch, and yaw
-void quaternionToEuler(const LEAP_QUATERNION *q, float *roll, float *pitch, float *yaw) {
-    // Roll (X-axis rotation)
-    // *roll = atan2(2.0f * (q->x * q->y + q->w * q->z), q->w * q->w + q->x * q->x - q->y * q->y - q->z * q->z); // old
-    *roll = atan2(2.0f * (q->z * q->y + q->w * q->x), q->w * q->w + q->z * q->z - q->y * q->y - q->x * q->x) * 180 / M_PI; // leap_origin
-
-    // Pitch (Y-axis rotation)
-    // double t2 = -2.0f * (q->x * q->z - q->w * q->y); // old
-    double t2 = 2.0f * (q->w * q->y - q->x * q->z); // leap_origin
-    if (t2 > 1.0f) {
-        t2 = 1.0f;
-    } else if (t2 < -1.0f) {
-        t2 = -1.0f;
-    }
-    *pitch = asin(t2) * 180 / M_PI;
-
-    // Yaw (Z-axis rotation)
-    // *yaw = atan2(2.0f * (q->z * q->y + q->w * q->x), q->w * q->w - q->x * q->x - q->y * q->y + q->z * q->z); // old incorrect
-    *yaw = atan2(2.0f * (q->x * q->y + q->w * q->z), q->w * q->w + q->x * q->x - q->y * q->y - q->z * q->z) * 180 / M_PI; // leap_origin
-}
-
-void quaternionToEuler_robot(const LEAP_QUATERNION *q, float *roll, float *pitch, float *yaw) {
-    // Roll (X-axis rotation)
-    *roll = atan2(2.0f * (q->y * (-q->x) + q->w * (-q->z)), q->w * q->w + q->y * q->y - q->x * q->x - q->z * q->z) * 180 / M_PI; // Robot
-
-    // Pitch (Y-axis rotation)
-    double t2 = 2.0f * (q->w * (-q->x) - (-q->z) * q->y); // Robot
-    if (t2 > 1.0f) {
-        t2 = 1.0f;
-    } else if (t2 < -1.0f) {
-        t2 = -1.0f;
-    }
-    *pitch = asin(t2) * 180 / M_PI;
-
-    // Yaw (Z-axis rotation)
-    *yaw = atan2(2.0f * ((-q->z) * (-q->x) + q->w * q->y), q->w * q->w + q->z * q->z - q->x * q->x - q->y * q->y) * 180 / M_PI; // Robot
-
-}
 
 struct Data {
-    float x, y, z, roll, grab, pitch, yaw;
+    float x, y, z, grab, roll, pitch, yaw;
     double timestamp;
 };
+
+void quaternionToEuler_robot(const LEAP_QUATERNION *q, float *roll, float *pitch, float *yaw) {
+    *roll = atan2(2.0f * (q->y * (-q->x) + q->w * (-q->z)), q->w * q->w + q->y * q->y - q->x * q->x - q->z * q->z) * 180 / M_PI;
+    double t2 = 2.0f * (q->w * (-q->x) - (-q->z) * q->y);
+    if (t2 > 1.0f) t2 = 1.0f;
+    else if (t2 < -1.0f) t2 = -1.0f;
+    *pitch = asin(t2) * 180 / M_PI;
+    *yaw = atan2(2.0f * ((-q->z) * (-q->x) + q->w * q->y), q->w * q->w + q->z * q->z - q->x * q->x - q->y * q->y) * 180 / M_PI;
+}
 
 void write_data_to_csv(struct Data* data, size_t count, FILE* file) {
     for (size_t i = 0; i < count; ++i) {
@@ -96,29 +63,27 @@ void serialize_data(struct Data* data, size_t count, char* buffer, size_t buffer
 
 
 int main(int argc, char** argv) {
-    OpenConnection();
-    while (!IsConnected)
-        millisleep(100); // wait a bit to let the connection complete
+    LEAP_CONNECTION* connHandle = OpenConnection();
+    while (!IsConnected) millisleep(100);
 
     printf("Connected.\n");
-    LEAP_DEVICE_INFO* deviceProps = GetDeviceProperties();
-    if (deviceProps)
-        printf("Using device %s.\n", deviceProps->serial);
-
-    FILE* file = fopen("/home/zeyu/leapmotion/build/Release/leapc_example/_leap_.csv", "w");
+    FILE* file = fopen("/home/zeyu/leapmotion/build/Release/leapc_example/interp_leap_.csv", "w");
     if (!file) {
         perror("fopen");
         return 1;
     }
-
     fprintf(file, "timestamp,x,y,z,grab,roll,pitch,yaw\n");
 
-    int64_t lastFrameID = 0; // The last frame received
-    float roll, pitch, yaw;
-    struct Data data;
-    struct sockaddr_in server_addr;
     struct Data data_stack[STACK_SIZE];
+    struct sockaddr_in server_addr;
     size_t data_index = 0;
+    struct Data data;
+
+    LEAP_CLOCK_REBASER clockSynchronizer;
+    LeapCreateClockRebaser(&clockSynchronizer);
+
+    struct timespec next_tick;
+    clock_gettime(CLOCK_MONOTONIC, &next_tick);
 
     int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (sock < 0) {
@@ -134,52 +99,58 @@ int main(int argc, char** argv) {
         return 1;
     }
 
+
     for (;;) {
-        LEAP_TRACKING_EVENT* frame = GetFrame();
-        if (frame && (frame->tracking_frame_id > lastFrameID)) {
-            lastFrameID = frame->tracking_frame_id;
-            for (uint32_t h = 0; h < frame->nHands; h++) {
-                LEAP_HAND* hand = &frame->pHands[h];
+        clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &next_tick, NULL);
 
-                quaternionToEuler_robot(&hand->palm.orientation, &roll, &pitch, &yaw);
+        clock_t cpuTime = (clock_t)(0.000001 * clock() / CLOCKS_PER_SEC);
+        LeapUpdateRebase(clockSynchronizer, cpuTime, LeapGetNow());
+        cpuTime = (clock_t)(0.000001 * clock() / CLOCKS_PER_SEC);
 
-                data.x = hand->palm.position.x;
-                data.y = hand->palm.position.y;
-                data.z = hand->palm.position.z;
-                data.roll = roll;
-                data.grab = hand->grab_strength;
-                data.pitch = pitch;
-                data.yaw = yaw;
-                data.timestamp = (double)frame->info.timestamp / 1000000.0;
-                // data.timestamp = get_unix_timestamp();
+        int64_t targetFrameTime;
+        LeapRebaseClock(clockSynchronizer, cpuTime, &targetFrameTime);
 
-                data_stack[data_index++] = data;
+        uint64_t targetFrameSize = 0;
+        eLeapRS result = LeapGetFrameSize(*connHandle, targetFrameTime, &targetFrameSize);
 
-                if (data_index >= STACK_SIZE) {
-                    write_data_to_csv(data_stack, data_index, file);
-                    char buffer[2048] = {0};
-                    serialize_data(data_stack, data_index, buffer, sizeof(buffer));
+        if (result == eLeapRS_Success) {
+            LEAP_TRACKING_EVENT* interpolatedFrame = malloc((size_t)targetFrameSize);
+            result = LeapInterpolateFrame(*connHandle, targetFrameTime, interpolatedFrame, targetFrameSize);
 
-                    // Print the data to the console
-                    // printf("Data stack:\n");
-                    // for (size_t i = 0; i < data_index; ++i) {
-                    //     printf("- Hand position: %f, %f, %f\n", data_stack[i].x, data_stack[i].y, data_stack[i].z);
-                    //     printf("  Hand orientation: %f, %f, %f\n", data_stack[i].roll, data_stack[i].pitch, data_stack[i].yaw);
-                    //     printf("  Hand grab strength: %f\n", data_stack[i].grab);
-                    //     printf("  Hand timestamp: %f\n", data_stack[i].timestamp);
-                    // }
-                    // printf("Data buffer: %s\n", buffer);
+            if (result == eLeapRS_Success && interpolatedFrame->tracking_frame_id != 0) {
+                for (uint32_t h = 0; h < interpolatedFrame->nHands; ++h) {
+                    LEAP_HAND* hand = &interpolatedFrame->pHands[h];
 
-                    if (sendto(sock, buffer, strlen(buffer), 0, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
-                        perror("sendto");
+                    data.x = hand->palm.position.x;
+                    data.y = hand->palm.position.y;
+                    data.z = hand->palm.position.z;
+                    data.grab = hand->grab_strength;
+                    data.timestamp = (double)interpolatedFrame->info.timestamp / 1000000.0;
+
+                    quaternionToEuler_robot(&hand->palm.orientation, &data.roll, &data.pitch, &data.yaw);
+
+                    data_stack[data_index++] = data;
+                    if (data_index >= STACK_SIZE) {
+                        write_data_to_csv(data_stack, data_index, file);
+                        char buffer[2048] = {0};
+                        serialize_data(data_stack, data_index, buffer, sizeof(buffer));
+                        if (sendto(sock, buffer, strlen(buffer), 0, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
+                            perror("sendto");
+                        }
+                        data_index = 0;
                     }
-                    data_index = 0;
                 }
             }
+            free(interpolatedFrame);
         }
-        // usleep(10000); // sleep to avoid excessive CPU usage
+
+        next_tick.tv_nsec += PERIOD_US * 1000;
+        if (next_tick.tv_nsec >= 1000000000) {
+            next_tick.tv_nsec -= 1000000000;
+            next_tick.tv_sec  += 1;
+        }
     }
 
-    close(sock);
+    fclose(file);
     return 0;
 }
