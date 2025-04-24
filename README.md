@@ -57,11 +57,14 @@ lsusb
 ### Some Handy Code for Building and Running in Linux
 
 ```bash
-# Start the Leap Motion service
-sudo leapd
-
 # Location of sample files on Linux system
 sudo cp LeapMotion/samples/save_data.c /usr/share/doc/ultraleap-hand-tracking-service/samples/save_data.c
+
+# Build the samples
+sudo bash /usr/share/doc/ultraleap-hand-tracking-service/build_project.sh
+
+# Start the Leap Motion service
+sudo leapd
 ```
 
 Note: The hand tracking UI is unstable in WSL, it is recommended to use command only.
