@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
     if (deviceProps)
         printf("Using device %s.\n", deviceProps->serial);
 
-    FILE* file = fopen("/Users/zeyu/leapmotion/build/Release/leapc_exec/_leap_.csv", "w");
+    FILE* file = fopen("/home/zeyu/leapmotion/build/Release/leapc_example/_leap_.csv", "w");
     if (!file) {
         perror("fopen");
         return 1;
