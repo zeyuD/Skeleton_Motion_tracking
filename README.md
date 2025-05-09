@@ -58,7 +58,7 @@ lsusb
 
 ```bash
 # Location of sample files on Linux system
-sudo cp LeapMotion/samples/save_data.c /usr/share/doc/ultraleap-hand-tracking-service/samples/save_data.c
+sudo cp LeapMotion/samples/client_leap_xArm.c /usr/share/doc/ultraleap-hand-tracking-service/samples/client_leap_xArm.c
 
 # Build the samples
 sudo bash /usr/share/doc/ultraleap-hand-tracking-service/build_project.sh

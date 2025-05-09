@@ -2,5 +2,6 @@
     "files.associations": {
         "stdint.h": "c",
         "time.h": "c"
-    }
+    },
+    "cmake.sourceDirectory": "/home/zeyu/Projects/Skeleton_Motion_tracking/LeapMotion/samples"
 }

@@ -15,8 +15,10 @@
 #define PERIOD_US     (1000000 / TARGET_FPS)
 #define STACK_SIZE     1
 // #define SERVER_IP "10.9.167.67" // Legion WiFi IP
-#define SERVER_IP "10.9.149.27" // XPS WiFi IP
+// #define SERVER_IP "10.9.149.27" // XPS WiFi IP
+// #define SERVER_IP "172.29.142.124" // ZedTUF IP
 // #define SERVER_IP "10.9.157.137" // MacBook Pro WiFi IP
+#define SERVER_IP "127.0.0.1"
 #define SERVER_PORT 8000
 
 struct Data {
