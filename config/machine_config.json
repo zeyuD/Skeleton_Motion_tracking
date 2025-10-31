@@ -1,0 +1,29 @@
+{
+    "ZedBook": {
+        "machine_type": "MacBook",
+        "code_dir": "/Users/zeyu/Library/CloudStorage/OneDrive-Personal/PhD_Projects/",
+        "data_dir": "/Users/zeyu/Library/CloudStorage/OneDrive-SouthernMethodistUniversity/",
+        "compdev": "mps"
+    },
+    "ZedTUF": {
+        "machine_type": "Windows Laptop",
+        "win_code_dir": "C:/Users/zeyu/OneDrive/PhD_Projects/",
+        "win_data_dir": "D:/OneDrive - Southern Methodist University/",
+        "wsl_code_dir": "~/Projects/",
+        "wsl_data_dir": "/mnt/d/OneDrive - Southern Methodist University/",
+        "compdev": "cuda"
+    },
+    "MistLab3660": {
+        "machine_type": "Windows Desktop",
+        "wsl_code_dir": "~/Projects/",
+        "wsl_data_dir": "/mnt/f/Zeyu/OneDrive - Southern Methodist University/",
+        "compdev": "cuda"
+    },
+    "slogin-01": {
+        "machine_type": "HPC SuperPOD",
+        "code_dir": "~/Projects/",
+        "data_dir": "/projects/cwang6/111/allocation001/",
+        "compdev": "cuda"
+    }
+  }
+  
