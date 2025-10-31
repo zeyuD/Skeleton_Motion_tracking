@@ -8,7 +8,7 @@ This tool aims to bridge the gap between the lack of comprehensive ready-to-use 
 - [Ultraleap Leap Motion Controller](https://developer.leapmotion.com/get-started/)
 
 ## Current Organized Progress
-### Leap Motion
++ ### Leap Motion
 - Leap Motion C++ API wrappers
 - Calculating and processing position, rotation, and grab
 - Socket to send to other platforms
