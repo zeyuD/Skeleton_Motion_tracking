@@ -7,7 +7,7 @@ This tool aims to bridge the gap between the lack of comprehensive ready-to-use 
 - [Meta Quest Hand Tracking](https://developer.oculus.com/documentation/unity/unity-handtracking/)
 - [Ultraleap Leap Motion Controller](https://developer.leapmotion.com/get-started/)
 
-Note: The machine_config.json is for easy directory management, you will need to configure your own path and names.
+Note: The machine_config.json is for easy directory management, you will need to configure your own path and json file name.
 
 ## Current Organized Progress
 ### Leap Motion
