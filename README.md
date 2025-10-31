@@ -7,24 +7,33 @@ This tool aims to bridge the gap between the lack of comprehensive ready-to-use 
 - [Meta Quest Hand Tracking](https://developer.oculus.com/documentation/unity/unity-handtracking/)
 - [Ultraleap Leap Motion Controller](https://developer.leapmotion.com/get-started/)
 
+
 ## Current Organized Progress
-+ ### Leap Motion
+### Leap Motion
 - Leap Motion C++ API wrappers
 - Calculating and processing position, rotation, and grab
 - Socket to send to other platforms
 - Save on local machine
 
+### MediaPipe
+- MediaPipe Python API wrappers
+- Apply pose detection with video to eliminate per-image detection noise
+
+
 ## Arranged To Do List
 - Limit tracking hand (e.g., only track right hand)
 - Display real-time Leap Motion status like FPS
+
 
 ## Implemented but Not Organized and Added
 - Hand and body skeleton tracking with Kinect 1&2 (C)
 - Hand tracking integration with MediaPipe (Python)
 - Hand tracking integration with Meta Quest 2&3 (C#)
 
+
 ## To Be Implemented
 - Multi-device calibration
+
 
 ## Tips for WSL (Windows Subsystem for Linux)
 
@@ -52,7 +61,6 @@ usbipd attach --busid BUSID --wsl
 # Verify the device is connected in WSL
 lsusb
 ```
-
 
 
 ### Some Handy Code for Building and Running in Linux
