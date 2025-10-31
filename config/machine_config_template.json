@@ -1,0 +1,9 @@
+{
+    "DeviceName": {
+        "machine_type": "MacBook",
+        "code_dir": "/your/code/path",
+        "data_dir": "/your/data/path",
+        "compdev": "mps"
+    }
+  }
+  
